@@ -22,7 +22,7 @@ export default {
 #eta {
   position: absolute;
   margin: 20px;
-  width: 25%;
+  width: 250px;
   top: 0;
   bottom: 50%;
   padding: 20px;
