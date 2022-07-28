@@ -21,7 +21,7 @@ export default {
     ...mapGetters(['geofences'])
   },
   async mounted () {
-    try { await this.$axios.$delete('/session') } catch (e) {}
+    sessionStorage.clear()
     await this.$axios.$get('/session' + window.location.search)
     await this.getLastPosition()
     this.initMap()
@@ -29,7 +29,7 @@ export default {
   },
   methods: {
     async getLastPosition () {
-      await this.$store.dispatch('geofences')
+      await this.$store.dispatch('getData')
       const [poi] = this.geofences
       end = poi.area.split('(')[1].split(',')[0].split(' ').map(c => Number.parseFloat(c)).reverse()
     },
