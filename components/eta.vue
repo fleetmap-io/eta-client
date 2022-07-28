@@ -33,7 +33,7 @@
       </span>
     </h1>
     <p>
-      <b>Actualizado:</b>{{ updated }}
+      <b>Actualizado: </b>{{ updated }}
     </p>
   </div>
 </template>
@@ -41,6 +41,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { formatDistance } from 'date-fns'
+import { pt } from 'date-fns/locale'
 import { format } from '@/utils/mapbox'
 export default {
   name: 'EtaPanel',
@@ -50,7 +51,7 @@ export default {
     fDuration () { return format.duration(this.duration) },
     updated () {
       return this.devices[0] &&
-       formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true })
+       formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true, locale: pt })
     }
   }
 }
