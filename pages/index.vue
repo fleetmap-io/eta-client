@@ -13,12 +13,11 @@ import Eta from '../components/eta'
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
-let end = null
 export default {
   name: 'IndexPage',
   components: { Eta },
   computed: {
-    ...mapGetters(['geofences', 'startColor', 'endColor'])
+    ...mapGetters(['geofences', 'startColor', 'endColor', 'end'])
   },
   async mounted () {
     await this.getLastPosition()
@@ -27,12 +26,7 @@ export default {
   },
   methods: {
     async getLastPosition () {
-      const token = new URLSearchParams(window.location.search).get('token')
-      const body = 'email=' + encodeURIComponent(`temp_${token}`) + '&password=' + encodeURIComponent(token)
-      await this.$axios.$post('session', body)
       await this.$store.dispatch('getData')
-      const [poi] = this.geofences
-      end = poi.area.split('(')[1].split(',')[0].split(' ').map(c => Number.parseFloat(c)).reverse()
     },
     initWebSocket () {
       socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
@@ -58,7 +52,7 @@ export default {
       map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: end, // starting position
+        center: this.end, // starting position
         zoom: 12
       })
       // map.setMaxBounds([end, end])
@@ -77,7 +71,7 @@ export default {
                   properties: {},
                   geometry: {
                     type: 'Point',
-                    coordinates: end
+                    coordinates: this.end
                   }
                 }
               ]
@@ -140,7 +134,7 @@ export default {
       // an arbitrary start will always be the same
       // only the end or destination will change
       const query = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${this.end[0]},${this.end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
         { method: 'GET' }
       )
       const json = await query.json()

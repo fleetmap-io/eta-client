@@ -16,22 +16,22 @@
         {{ fDistance }}
       </span>
     </h1>
-    <h1 :style="`color:${startColor}`">
+    <p :style="`color:${startColor}`">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-car" />
       </span>
       <span>
         {{ devices[0] && devices[0].name }}
       </span>
-    </h1>
-    <h1 :style="`color:${endColor}`">
+    </p>
+    <p :style="`color:${endColor}`">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-location-dot" />
       </span>
       <span>
-        {{ geofences[0] && geofences[0].name }}
+        {{ endAddress }}
       </span>
-    </h1>
+    </p>
     <p>
       <b>Actualizado: </b>{{ updated }}
     </p>
@@ -46,7 +46,7 @@ import { format } from '@/utils/mapbox'
 export default {
   name: 'EtaPanel',
   computed: {
-    ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor']),
+    ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'endAddress']),
     fDistance () { return format.metric(this.distance) },
     fDuration () { return format.duration(this.duration) },
     updated () {
@@ -59,12 +59,7 @@ export default {
 
 <style scoped>
 
-span {
-  padding-left: 10px;
-}
-
 .fa {
-  width: 50px;
   padding: 0 12px 0 0;
   display: inline-block;
 }
