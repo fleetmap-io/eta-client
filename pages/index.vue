@@ -21,7 +21,7 @@ export default {
     ...mapGetters(['geofences'])
   },
   async mounted () {
-    await this.$axios.$delete('/session')
+    try { await this.$axios.$delete('/session') } catch (e) {}
     await this.$axios.$get('/session' + window.location.search)
     await this.getLastPosition()
     this.initMap()
