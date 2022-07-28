@@ -18,7 +18,7 @@ export default {
   name: 'IndexPage',
   components: { Eta },
   computed: {
-    ...mapGetters(['geofences'])
+    ...mapGetters(['geofences', 'startColor', 'endColor'])
   },
   async mounted () {
     await this.getLastPosition()
@@ -48,8 +48,8 @@ export default {
         socket.onmessage = (event) => {
           const data = JSON.parse(event.data)
           if (data.positions && data.positions.length) {
-            this.update([data.positions[0].longitude, data.positions[0].latitude])
-            // this.updateMarkers(data.positions.sort((a, b) => a.fixTime === b.fixTime ? 0 : a.fixTime < b.fixTime ? -1 : 1))
+            const last = data.positions.pop()
+            this.update([last.longitude, last.latitude])
           }
         }
       })
@@ -85,7 +85,7 @@ export default {
           },
           paint: {
             'circle-radius': 10,
-            'circle-color': '#3887be'
+            'circle-color': this.endColor
           }
         })
         // this is where the code from the next step will go
@@ -129,7 +129,7 @@ export default {
           },
           paint: {
             'circle-radius': 10,
-            'circle-color': '#f30'
+            'circle-color': this.startColor
           }
         })
       }
