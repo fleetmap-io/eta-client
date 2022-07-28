@@ -12,7 +12,7 @@ export default {
   computed: {
     ...mapGetters(['duration', 'distance']),
     fDistance () { return format.metric(this.distance) },
-    fDuration () { return format.duration(this.distance) }
+    fDuration () { return format.duration(this.duration) }
   }
 }
 </script>
