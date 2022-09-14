@@ -9,7 +9,10 @@
 import mapboxgl from 'mapbox-gl'
 import bbox from '@turf/bbox'
 import { mapGetters } from 'vuex'
+import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
+import 'mapbox-gl-style-switcher/styles.css'
+
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
@@ -55,6 +58,7 @@ export default {
         center: this.end || this.start,
         zoom: 12
       })
+      map.addControl(new MapboxStyleSwitcherControl())
       // map.setMaxBounds([end, end])
       map.on('load', () => {
         if (this.end) {
