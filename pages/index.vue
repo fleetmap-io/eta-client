@@ -131,6 +131,8 @@ export default {
       }
       if (this.end) {
         this.getRoute(coords)
+      } else {
+        map.setCenter(coords)
       }
     },
     async getRoute (start) {
