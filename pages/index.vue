@@ -52,37 +52,39 @@ export default {
       map = new mapboxgl.Map({
         container: 'map',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: this.end, // starting position
+        center: this.end || this.start,
         zoom: 12
       })
       // map.setMaxBounds([end, end])
       map.on('load', () => {
-        // Add starting point to the map
-        map.addLayer({
-          id: 'point',
-          type: 'circle',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: {
-                    type: 'Point',
-                    coordinates: this.end
+        if (this.end) {
+          // Add starting point to the map
+          map.addLayer({
+            id: 'point',
+            type: 'circle',
+            source: {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                      type: 'Point',
+                      coordinates: this.end
+                    }
                   }
-                }
-              ]
+                ]
+              }
+            },
+            paint: {
+              'circle-radius': 10,
+              'circle-color': this.endColor
             }
-          },
-          paint: {
-            'circle-radius': 10,
-            'circle-color': this.endColor
-          }
-        })
-        // this is where the code from the next step will go
+          })
+          // this is where the code from the next step will go
+        }
       })
     },
     update (coords) {
@@ -127,7 +129,9 @@ export default {
           }
         })
       }
-      this.getRoute(coords)
+      if (this.end) {
+        this.getRoute(coords)
+      }
     },
     async getRoute (start) {
       // make a directions request using cycling profile

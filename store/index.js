@@ -15,7 +15,7 @@ export const getters = {
   devices: state => state.devices,
   startColor: state => state.startColor,
   endColor: state => state.endColor,
-  end: state => state.session.attributes.linkVersion.split(','),
+  end: state => state.session.attributes.linkVersion && state.session.attributes.linkVersion.split(','),
   endAddress: state => state.session && state.session.attributes.endAddress
 }
 
