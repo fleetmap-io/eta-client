@@ -46,6 +46,7 @@ export default {
           const data = JSON.parse(event.data)
           if (data.positions && data.positions.length) {
             const last = data.positions.pop()
+            this.$store.commit('setPosition', last)
             this.update([last.longitude, last.latitude])
           }
         }

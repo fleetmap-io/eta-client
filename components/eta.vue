@@ -1,21 +1,23 @@
 <template>
   <div id="eta">
-    <h1>
-      <span class="fa">
-        <font-awesome-icon icon="fa-solid fa-clock" />
-      </span>
-      <span>
-        {{ fDuration }}
-      </span>
-    </h1>
-    <h1>
-      <span class="fa">
-        <font-awesome-icon icon="fa-solid fa-road" />
-      </span>
-      <span>
-        {{ fDistance }}
-      </span>
-    </h1>
+    <div v-if="endAddress">
+      <h1>
+        <span class="fa">
+          <font-awesome-icon icon="fa-solid fa-clock" />
+        </span>
+        <span>
+          {{ fDuration }}
+        </span>
+      </h1>
+      <h1>
+        <span class="fa">
+          <font-awesome-icon icon="fa-solid fa-road" />
+        </span>
+        <span>
+          {{ fDistance }}
+        </span>
+      </h1>
+    </div>
     <p :style="`color:${startColor}`">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-car" />
@@ -24,12 +26,12 @@
         {{ devices[0] && devices[0].name }}
       </span>
     </p>
-    <p :style="`color:${endColor}`">
+    <p :style="`color:` + getStatusColor()">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-location-dot" />
       </span>
       <span>
-        {{ endAddress }}
+        {{ endAddress ? endAddress : (position ? position.address : '') }}
       </span>
     </p>
     <p>
@@ -48,13 +50,20 @@ const locales = { pt, es }
 export default {
   name: 'EtaPanel',
   computed: {
-    ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'endAddress', 'session']),
+    ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
     fDistance () { return format.metric(this.distance) },
     fDuration () { return format.duration(this.duration) },
     updated () {
       const locale = locales[navigator.language]
       return this.devices[0] &&
        formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true, locale })
+    }
+  },
+  methods: {
+    getStatusColor () {
+      return this.endAddress
+        ? this.endColor
+        : (this.position ? (this.position.attributes.ignition ? this.onColor : this.endColor) : this.startColor)
     }
   }
 }

@@ -4,8 +4,10 @@ export const state = () => ({
   geofences: [],
   devices: [],
   startColor: '#3887be',
+  onColor: '#3D993D',
   endColor: '#f30',
-  session: null
+  session: null,
+  position: null
 })
 
 export const getters = {
@@ -14,9 +16,11 @@ export const getters = {
   geofences: state => state.geofences,
   devices: state => state.devices,
   startColor: state => state.startColor,
+  onColor: state => state.onColor,
   endColor: state => state.endColor,
   end: state => state.session.attributes.linkVersion && state.session.attributes.linkVersion.split(','),
-  endAddress: state => state.session && state.session.attributes.endAddress
+  endAddress: state => state.session && state.session.attributes.endAddress,
+  position: state => state.position
 }
 
 export const mutations = {
@@ -25,6 +29,9 @@ export const mutations = {
   },
   setDistance (state, distance) {
     state.distance = distance
+  },
+  setPosition (state, position) {
+    state.position = position
   },
   SET_DEVICES (state, devices) {
     state.devices = devices
