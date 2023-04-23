@@ -1,3 +1,5 @@
+import SentryPlugin from '@sentry/webpack-plugin'
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -56,5 +58,15 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
+    extend (config, { isDev }) {
+      if (!isDev) {
+        config.devtool = 'source-map'
+        config.plugins.push(new SentryPlugin({
+          org: 'pinme-97',
+          project: 'fleetmap',
+          release: process.env.npm_package_version
+        }))
+      }
+    }
   }
 }
