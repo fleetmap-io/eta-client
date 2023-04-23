@@ -1,5 +1,6 @@
 export const format = {
   duration (s) {
+    if (!s) { return 'calculando...' }
     let m = Math.floor(s / 60)
     const h = Math.floor(m / 60)
     s %= 60
@@ -18,6 +19,7 @@ export const format = {
   },
 
   metric (m) {
+    if (!m) { return 'calculando...' }
     if (m >= 100000) { return (m / 1000).toFixed(0) + 'km' }
     if (m >= 10000) { return (m / 1000).toFixed(1) + 'km' }
     if (m >= 100) { return (m / 1000).toFixed(2) + 'km' }
