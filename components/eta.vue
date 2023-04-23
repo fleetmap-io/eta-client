@@ -1,22 +1,18 @@
 <template>
   <div id="eta">
     <div v-if="endAddress">
-      <h3>
-        <span class="fa">
-          <font-awesome-icon icon="fa-solid fa-clock" />
-        </span>
-        <span>
-          {{ fDuration }}
-        </span>
-      </h3>
-      <h3>
-        <span class="fa">
-          <font-awesome-icon icon="fa-solid fa-road" />
-        </span>
-        <span>
-          {{ fDistance }}
-        </span>
-      </h3>
+      <span class="fa">
+        <font-awesome-icon icon="fa-solid fa-clock" />
+      </span>
+      <span>
+        {{ fDuration }}
+      </span>
+      <span class="fa">
+        <font-awesome-icon icon="fa-solid fa-road" />
+      </span>
+      <span>
+        {{ fDistance }}
+      </span>
     </div>
     <p :style="`color:${startColor}`">
       <span class="fa">
@@ -35,7 +31,7 @@
       </span>
     </p>
     <p>
-      <b>Actualizado: </b>{{ updated }}
+      Actualizado: {{ updated }}
     </p>
     <span style="font-size: smaller">{{ title }}</span>
   </div>
@@ -80,11 +76,10 @@ export default {
 
 #eta {
   position: absolute;
-  margin: 20px;
-  width: 200px;
+  margin: 10px;
   top: 0;
   /*bottom: 50%;*/
-  padding: 20px;
+  padding: 10px;
   background-color: #fffd;
   overflow-y: scroll;
   font-family: sans-serif;
