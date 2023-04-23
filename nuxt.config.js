@@ -12,7 +12,7 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'eta-client ' + process.env.npm_package_version,
+    title: 'Fleetmap ETA ' + process.env.npm_package_version,
     htmlAttrs: {
       lang: 'en'
     },
