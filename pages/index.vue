@@ -31,27 +31,6 @@ export default {
     async getLastPosition () {
       await this.$store.dispatch('getData')
     },
-    initWebSocket () {
-      socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
-      const events = ['onclose', 'onerror', 'onopen']
-      events.forEach((eventType) => {
-        socket[eventType] = (event) => {
-          if (event.type === 'close') {
-            setTimeout(() => {
-              this.initWebSocket()
-            }, 10000)
-          }
-        }
-        socket.onmessage = (event) => {
-          const data = JSON.parse(event.data)
-          if (data.positions && data.positions.length) {
-            const last = data.positions.pop()
-            this.$store.commit('setPosition', last)
-            this.update([last.longitude, last.latitude])
-          }
-        }
-      })
-    },
     initMap () {
       map = new mapboxgl.Map({
         container: 'map',
@@ -184,6 +163,27 @@ export default {
       map.fitBounds(bbox(geojson), { padding: { top: 30, bottom: 30, left: 330, right: 30 } })
       this.$store.commit('setDuration', data.duration)
       this.$store.commit('setDistance', data.distance)
+    },
+    initWebSocket () {
+      socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
+      const events = ['onclose', 'onerror', 'onopen']
+      events.forEach((eventType) => {
+        socket[eventType] = (event) => {
+          if (event.type === 'close') {
+            setTimeout(() => {
+              this.initWebSocket()
+            }, 10000)
+          }
+        }
+        socket.onmessage = (event) => {
+          const data = JSON.parse(event.data)
+          if (data.positions && data.positions.length) {
+            const last = data.positions.pop()
+            this.$store.commit('setPosition', last)
+            this.update([last.longitude, last.latitude])
+          }
+        }
+      })
     }
   }
 }
