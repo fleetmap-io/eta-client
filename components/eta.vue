@@ -48,7 +48,7 @@ export default {
   name: 'EtaPanel',
   computed: {
     ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
-    title: () => 'v' + document.title.split(' ')[1],
+    title: () => 'v' + document.title.split(' ')[2],
     fDistance () { return format.metric(this.distance) },
     fDuration () { return format.duration(this.duration) },
     updated () {
