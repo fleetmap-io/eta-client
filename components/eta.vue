@@ -37,7 +37,7 @@
     <p>
       <b>Actualizado: </b>{{ updated }}
     </p>
-    v1.17
+    <span style="font-size: smaller">{{ title }}</span>
   </div>
 </template>
 
@@ -52,6 +52,7 @@ export default {
   name: 'EtaPanel',
   computed: {
     ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
+    title: () => 'v' + document.title.split(' ')[1],
     fDistance () { return format.metric(this.distance) },
     fDuration () { return format.duration(this.duration) },
     updated () {
