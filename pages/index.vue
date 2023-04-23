@@ -25,7 +25,7 @@ export default {
   async mounted () {
     await this.getLastPosition()
     this.initMap()
-    this.initWebSocket()
+    setTimeout(this.initWebSocket, 2000)
   },
   methods: {
     async getLastPosition () {
