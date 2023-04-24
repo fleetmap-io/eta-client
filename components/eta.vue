@@ -53,6 +53,9 @@ export default {
     fDuration () { return format.duration(this.duration) },
     updated () {
       const locale = locales[navigator.language]
+      if (!locale) {
+        console.error('language not implemented', navigator.language)
+      }
       return this.devices[0] &&
        formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true, locale })
     }
