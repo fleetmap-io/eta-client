@@ -52,7 +52,7 @@ export default {
     fDistance () { return format.metric(this.distance) },
     fDuration () { return format.duration(this.duration) },
     updated () {
-      const locale = locales[navigator.language]
+      const locale = locales[navigator.language.substring(0, 2)]
       if (!locale) {
         console.error('language not implemented', navigator.language)
       }
