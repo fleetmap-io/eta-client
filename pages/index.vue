@@ -160,7 +160,18 @@ export default {
           }
         })
       }
-      map.fitBounds(bbox(geojson), { padding: { top: 30, bottom: 30, left: 30, right: 30 } })
+      try {
+        map.fitBounds(bbox(geojson), {
+          padding: {
+            top: 30,
+            bottom: 30,
+            left: 30,
+            right: 30
+          }
+        })
+      } catch (e) {
+        console.error(e)
+      }
       this.$store.commit('setDuration', data.duration)
       this.$store.commit('setDistance', data.distance)
     },
