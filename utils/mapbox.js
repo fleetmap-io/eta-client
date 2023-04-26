@@ -1,17 +1,6 @@
 export const format = {
   duration (s) {
-    if (s === -1) { return 'calculando...' }
-    if (!s) {
-      console.error('received invalid duration', s)
-      return s
-    }
-    let m = Math.floor(s / 60)
-    const h = Math.floor(m / 60)
-    s %= 60
-    m %= 60
-    if (h === 0 && m === 0) { return s + 's' }
-    if (h === 0) { return m + 'min' }
-    return h + 'h ' + m + 'min'
+
   },
 
   imperial (m) {

@@ -1,11 +1,11 @@
 <template>
-  <div id="eta">
+  <div id="eta" style="max-width: 200px">
     <div v-if="endAddress">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-clock" />
       </span>
       <span>
-        {{ fDuration }}
+        {{ duration | fDistance }}
       </span>
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-road" />
@@ -31,7 +31,7 @@
       </span>
     </p>
     <p>
-      Actualizado: {{ updated }}
+      Actualizado {{ updated }}
     </p>
     <span style="font-size: smaller">{{ title }}</span>
   </div>
@@ -46,11 +46,27 @@ import { format } from '@/utils/mapbox'
 const locales = { pt, es }
 export default {
   name: 'EtaPanel',
+  filters: {
+    fDistance (distance) {
+      let s = distance
+      if (s === -1) { return 'calculando...' }
+      if (!s) {
+        console.error('received invalid duration', s)
+        return s
+      }
+      let m = Math.floor(s / 60)
+      const h = Math.floor(m / 60)
+      s %= 60
+      m %= 60
+      if (h === 0 && m === 0) { return s + 's' }
+      if (h === 0) { return m + 'min' }
+      return h + 'h ' + m + 'min'
+    }
+  },
   computed: {
     ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
     title: () => 'v' + document.title.split(' ')[2],
     fDistance () { return format.metric(this.distance) },
-    fDuration () { return format.duration(this.duration) },
     updated () {
       const locale = locales[navigator.language.substring(0, 2)]
       if (!locale) {
