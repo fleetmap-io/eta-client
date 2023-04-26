@@ -1,6 +1,10 @@
 export const format = {
   duration (s) {
-    if (!s) { return 'calculando...' }
+    if (s === -1) { return 'calculando...' }
+    if (!s) {
+      console.error('received invalid duration', s)
+      return s
+    }
     let m = Math.floor(s / 60)
     const h = Math.floor(m / 60)
     s %= 60

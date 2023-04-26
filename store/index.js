@@ -1,5 +1,5 @@
 export const state = () => ({
-  duration: 0,
+  duration: -1,
   distance: 0,
   geofences: [],
   devices: [],
