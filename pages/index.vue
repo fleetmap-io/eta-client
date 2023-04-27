@@ -17,6 +17,7 @@ import { mapGetters } from 'vuex'
 import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
 import 'mapbox-gl-style-switcher/styles.css'
+import { format } from '@/utils/mapbox'
 
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
@@ -146,7 +147,9 @@ export default {
       const route = data.geometry.coordinates
       const geojson = {
         type: 'Feature',
-        properties: {},
+        properties: {
+          text: `${format.duration(data.duration)}\n${format.metric(data.distance)}`
+        },
         geometry: {
           type: 'LineString',
           coordinates: route
@@ -171,6 +174,17 @@ export default {
             'line-color': '#3887be',
             'line-width': 5,
             'line-opacity': 0.75
+          }
+        })
+        map.addLayer({
+          id: 'routeText',
+          type: 'symbol',
+          source: {
+            type: 'geojson',
+            data: geojson
+          },
+          layout: {
+            'text-field': ['get', 'text']
           }
         })
       }

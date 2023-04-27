@@ -5,7 +5,7 @@
         <font-awesome-icon icon="fa-solid fa-clock" />
       </span>
       <span>
-        {{ duration | fDistance }}
+        {{ duration | fDuration }}
       </span>
       <span class="fa" style="padding-left: 10px">
         <font-awesome-icon icon="fa-solid fa-road" />
@@ -47,20 +47,8 @@ const locales = { pt, es }
 export default {
   name: 'EtaPanel',
   filters: {
-    fDistance (distance) {
-      let s = distance
-      if (s === -1) { return 'calculando...' }
-      if (!s) {
-        console.error('received invalid duration', s)
-        return s
-      }
-      let m = Math.floor(s / 60)
-      const h = Math.floor(m / 60)
-      s %= 60
-      m %= 60
-      if (h === 0 && m === 0) { return s + 's' }
-      if (h === 0) { return m + 'min' }
-      return h + 'h ' + m + 'min'
+    fDuration (duration) {
+      return format.duration(duration)
     }
   },
   computed: {
