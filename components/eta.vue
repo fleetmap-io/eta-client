@@ -7,7 +7,7 @@
       <span>
         {{ duration | fDuration }}
       </span>
-      <span class="fa" style="padding-left: 10px">
+      <span class="fa" style="padding-left: 5px">
         <font-awesome-icon icon="fa-solid fa-road" />
       </span>
       <span>
@@ -20,8 +20,8 @@
       </span>
       <span>
         {{ devices[0] && devices[0].name }}<br>
-        {{ address }}
       </span>
+      <span style="font-size: smaller">{{ address }}</span>
     </p>
     <p :style="`color:` + getStatusColor()">
       <span class="fa">
@@ -31,9 +31,7 @@
         {{ endAddress ? endAddress : (position ? position.address : '') }}
       </span>
     </p>
-    <p>
-      <span style="font-size: small">Actualizado {{ updated }}</span>
-    </p>
+    <span style="font-size: small">Actualizado {{ updated }}</span><br>
     <span style="font-size: smaller">{{ title }}</span>
   </div>
 </template>
