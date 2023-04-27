@@ -23,11 +23,10 @@ mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
 const styles = [
-  { title: 'Dark', uri: 'mapbox://styles/mapbox/dark-v10' },
-  { title: 'Light', uri: 'mapbox://styles/mapbox/light-v11' },
-  { title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v11' },
-  { title: 'Satellite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
-  { title: 'Streets', uri: 'mapbox://styles/mapbox/streets-v11' }
+  { title: 'Escuro', uri: 'mapbox://styles/mapbox/dark-v10' },
+  { title: 'Claro', uri: 'mapbox://styles/mapbox/light-v11' },
+  { title: 'Satelite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
+  { title: 'Calles', uri: 'mapbox://styles/mapbox/streets-v11' }
 ]
 
 export default {
