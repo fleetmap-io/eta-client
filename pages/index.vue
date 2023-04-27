@@ -50,7 +50,6 @@ export default {
         center: this.end || this.start,
         zoom: 12
       })
-      // map.setMaxBounds([end, end])
       map.on('load', () => {
         if (this.end) {
           // Add starting point to the map
@@ -132,6 +131,27 @@ export default {
         map.setCenter(coords)
       }
     },
+    addTextLayer (geojson) {
+      map.addLayer({
+        id: 'routeText',
+        type: 'symbol',
+        source: {
+          type: 'geojson',
+          data: geojson
+        },
+        layout: {
+          'text-field': ['get', 'text'],
+          'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
+          'text-offset': [1, 1],
+          'symbol-placement': 'point',
+          'text-size': 18
+        },
+        paint: {
+          'text-halo-color': 'white',
+          'text-halo-width': 2
+        }
+      })
+    },
     async getRoute (start) {
       // make a directions request using cycling profile
       // an arbitrary start will always be the same
@@ -174,21 +194,7 @@ export default {
             'line-opacity': 0.75
           }
         })
-        map.addLayer({
-          id: 'routeText',
-          type: 'symbol',
-          source: {
-            type: 'geojson',
-            data: geojson
-          },
-          layout: {
-            'text-field': ['get', 'text'],
-            'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
-            'text-offset': [1, 1],
-            'symbol-placement': 'point',
-            'text-size': 18
-          }
-        })
+        // this.addTextLayer(geojson)
       }
       try {
         map.fitBounds(bbox(geojson), {

@@ -1,5 +1,5 @@
 <template>
-  <div id="eta" style="max-width: 200px">
+  <div id="eta" style="max-width: 200px; text-shadow: gray 1px 0 10px;">
     <div v-if="duration !== -1">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-clock" />
