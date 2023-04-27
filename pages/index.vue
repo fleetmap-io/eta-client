@@ -14,7 +14,6 @@
 import mapboxgl from 'mapbox-gl'
 import bbox from '@turf/bbox'
 import { mapGetters } from 'vuex'
-import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
 import 'mapbox-gl-style-switcher/styles.css'
 import { format } from '@/utils/mapbox'
@@ -32,7 +31,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['geofences', 'startColor', 'endColor', 'end'])
+    ...mapGetters(['device', 'geofences', 'startColor', 'endColor', 'end'])
   },
   async mounted () {
     this.loading = true
@@ -47,11 +46,10 @@ export default {
     initMap () {
       map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
+        style: 'mapbox://styles/mapbox/light-v11',
         center: this.end || this.start,
         zoom: 12
       })
-      map.addControl(new MapboxStyleSwitcherControl())
       // map.setMaxBounds([end, end])
       map.on('load', () => {
         if (this.end) {
@@ -85,13 +83,13 @@ export default {
         this.initWebSocket()
       })
     },
-    async update (coords) {
+    async update (coords, address) {
+      this.$store.commit('SET_ADDRESS', address)
       const start = {
         type: 'FeatureCollection',
         features: [
           {
             type: 'Feature',
-            properties: {},
             geometry: {
               type: 'Point',
               coordinates: coords
@@ -184,7 +182,10 @@ export default {
             data: geojson
           },
           layout: {
-            'text-field': ['get', 'text']
+            'text-field': ['get', 'text'],
+            'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
+            'text-offset': [1, 1],
+            'symbol-placement': 'point'
           }
         })
       }
@@ -219,7 +220,7 @@ export default {
           if (data.positions && data.positions.length) {
             const last = data.positions.pop()
             this.$store.commit('setPosition', last)
-            this.update([last.longitude, last.latitude])
+            this.update([last.longitude, last.latitude], last.address)
           }
         }
       })

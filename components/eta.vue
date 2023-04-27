@@ -19,7 +19,8 @@
         <font-awesome-icon icon="fa-solid fa-car" />
       </span>
       <span>
-        {{ devices[0] && devices[0].name }}
+        {{ devices[0] && devices[0].name }}<br>
+        {{ address }}
       </span>
     </p>
     <p :style="`color:` + getStatusColor()">
@@ -52,7 +53,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
+    ...mapGetters(['address', 'duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
     title: () => 'v' + document.title.split(' ')[2],
     fDistance () { return format.metric(this.distance) },
     updated () {

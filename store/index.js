@@ -7,10 +7,12 @@ export const state = () => ({
   onColor: '#3D993D',
   endColor: '#f30',
   session: null,
-  position: null
+  position: null,
+  address: ''
 })
 
 export const getters = {
+  address: state => state.address,
   duration: state => state.duration,
   distance: state => state.distance,
   geofences: state => state.geofences,
@@ -20,7 +22,8 @@ export const getters = {
   endColor: state => state.endColor,
   end: state => state.session.attributes.linkVersion && state.session.attributes.linkVersion.split(','),
   endAddress: state => state.session && state.session.attributes.endAddress,
-  position: state => state.position
+  position: state => state.position,
+  device: state => state.devices && state.devices[0] && state.devices[0].name
 }
 
 export const mutations = {
@@ -38,6 +41,9 @@ export const mutations = {
   },
   SET_SESSION (state, session) {
     state.session = session
+  },
+  SET_ADDRESS (state, address) {
+    state.address = address
   }
 }
 
