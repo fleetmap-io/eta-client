@@ -3,7 +3,7 @@ export const state = () => ({
   distance: 0,
   geofences: [],
   devices: [],
-  startColor: '#3887be',
+  startColor: 'darkblue',
   onColor: '#3D993D',
   endColor: '#f30',
   session: null,

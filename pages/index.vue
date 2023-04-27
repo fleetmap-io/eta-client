@@ -185,7 +185,8 @@ export default {
             'text-field': ['get', 'text'],
             'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
             'text-offset': [1, 1],
-            'symbol-placement': 'point'
+            'symbol-placement': 'point',
+            'text-size': 18
           }
         })
       }

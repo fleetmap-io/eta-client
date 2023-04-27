@@ -1,6 +1,6 @@
 <template>
   <div id="eta" style="max-width: 200px">
-    <div v-if="endAddress">
+    <div v-if="duration !== -1">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-clock" />
       </span>
