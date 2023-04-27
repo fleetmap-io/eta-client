@@ -35,6 +35,7 @@ export const mutations = {
   },
   setPosition (state, position) {
     state.position = position
+    state.address = position.address
   },
   SET_DEVICES (state, devices) {
     state.devices = devices

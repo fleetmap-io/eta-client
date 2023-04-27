@@ -1,5 +1,5 @@
 <template>
-  <div id="eta" style="max-width: 200px; text-shadow: gray 1px 0 10px;">
+  <div id="eta">
     <div v-if="duration !== -1">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-clock" />
@@ -81,10 +81,11 @@ export default {
 }
 
 #eta {
+  max-width: 200px;
+  background-color: #fffc;
   position: absolute;
   margin: 10px;
   top: 0;
-  /*bottom: 50%;*/
   padding: 10px;
   overflow-y: scroll;
   font-family: sans-serif;

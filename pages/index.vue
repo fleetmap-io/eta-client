@@ -22,6 +22,14 @@ import { format } from '@/utils/mapbox'
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
+const styles = [
+  { title: 'Dark', uri: 'mapbox://styles/mapbox/dark-v10' },
+  { title: 'Light', uri: 'mapbox://styles/mapbox/light-v11' },
+  { title: 'Outdoors', uri: 'mapbox://styles/mapbox/outdoors-v11' },
+  { title: 'Satellite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
+  { title: 'Streets', uri: 'mapbox://styles/mapbox/streets-v11' }
+]
+
 export default {
   name: 'IndexPage',
   components: { Eta },
@@ -32,7 +40,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['device', 'geofences', 'startColor', 'endColor', 'end'])
+    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end'])
   },
   async mounted () {
     this.loading = true
@@ -51,41 +59,49 @@ export default {
         center: this.end || this.start,
         zoom: 12
       })
-      map.addControl(new MapboxStyleSwitcherControl())
-      map.on('load', () => {
-        if (this.end) {
-          // Add starting point to the map
-          map.addLayer({
-            id: 'point',
-            type: 'circle',
-            source: {
-              type: 'geojson',
-              data: {
-                type: 'FeatureCollection',
-                features: [
-                  {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                      type: 'Point',
-                      coordinates: this.end
-                    }
-                  }
-                ]
-              }
-            },
-            paint: {
-              'circle-radius': 10,
-              'circle-color': this.endColor
-            }
-          })
-          // this is where the code from the next step will go
+
+      map.addControl(new MapboxStyleSwitcherControl(styles, {
+        eventListeners: {
+          // return true if you want to stop execution
+          //           onOpen: (event: MouseEvent) => boolean;
+          //           onSelect: (event: MouseEvent) => boolean;
+          onChange: () => map.once('data', this.update)
         }
+      }))
+      map.on('load', () => {
         this.initWebSocket()
       })
     },
-    async update (coords, address) {
-      this.$store.commit('SET_ADDRESS', address)
+    async update () {
+      if (this.end && !map.getLayer('point')) {
+        // Add starting point to the map
+        map.addLayer({
+          id: 'point',
+          type: 'circle',
+          source: {
+            type: 'geojson',
+            data: {
+              type: 'FeatureCollection',
+              features: [
+                {
+                  type: 'Feature',
+                  properties: {},
+                  geometry: {
+                    type: 'Point',
+                    coordinates: this.end
+                  }
+                }
+              ]
+            }
+          },
+          paint: {
+            'circle-radius': 10,
+            'circle-color': this.endColor
+          }
+        })
+        // this is where the code from the next step will go
+      }
+      const coordinates = [this.position.longitude, this.position.latitude]
       const start = {
         type: 'FeatureCollection',
         features: [
@@ -93,7 +109,7 @@ export default {
             type: 'Feature',
             geometry: {
               type: 'Point',
-              coordinates: coords
+              coordinates
             }
           }
         ]
@@ -114,7 +130,7 @@ export default {
                   properties: {},
                   geometry: {
                     type: 'Point',
-                    coordinates: coords
+                    coordinates
                   }
                 }
               ]
@@ -127,10 +143,10 @@ export default {
         })
       }
       if (this.end) {
-        await this.getRoute(coords)
+        await this.getRoute(coordinates)
         this.loading = false
       } else {
-        map.setCenter(coords)
+        map.setCenter(coordinates)
       }
     },
     addTextLayer (geojson) {
@@ -229,7 +245,7 @@ export default {
           if (data.positions && data.positions.length) {
             const last = data.positions.pop()
             this.$store.commit('setPosition', last)
-            this.update([last.longitude, last.latitude], last.address)
+            this.update()
           }
         }
       })
