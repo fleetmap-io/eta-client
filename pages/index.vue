@@ -2,6 +2,11 @@
   <div>
     <div id="map" />
     <eta />
+    <div v-if="loading" id="overlay" style="display: inline-block" />
+    <div v-if="loading" style="left: calc(50% - 24px); top: calc(50vh - 24px); width: 100%; position: relative;">
+      <span :style="`position: absolute; left: ${timer<10?20:16}px; top: 14px; font-family: sans-serif;`">{{ timer }}</span>
+      <span class="loader" />
+    </div>
   </div>
 </template>
 
@@ -19,12 +24,20 @@ let socket = null
 export default {
   name: 'IndexPage',
   components: { Eta },
+  data () {
+    return {
+      timer: 0,
+      loading: true
+    }
+  },
   computed: {
     ...mapGetters(['geofences', 'startColor', 'endColor', 'end'])
   },
   async mounted () {
+    this.loading = true
     await this.getLastPosition()
     this.initMap()
+    setInterval(() => this.timer++, 1000)
   },
   methods: {
     async getLastPosition () {
@@ -71,7 +84,7 @@ export default {
         this.initWebSocket()
       })
     },
-    update (coords) {
+    async update (coords) {
       const start = {
         type: 'FeatureCollection',
         features: [
@@ -114,7 +127,8 @@ export default {
         })
       }
       if (this.end) {
-        this.getRoute(coords)
+        await this.getRoute(coords)
+        this.loading = false
       } else {
         map.setCenter(coords)
       }
@@ -192,7 +206,6 @@ export default {
             const last = data.positions.pop()
             this.$store.commit('setPosition', last)
             this.update([last.longitude, last.latitude])
-            this.$forceUpdate()
           }
         }
       })
@@ -211,4 +224,38 @@ body {
   bottom: 0;
   width: 100%;
 }
+
+#overlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.6); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+}
+.loader {
+  width: 48px;
+  height: 48px;
+  border: 5px solid #FFF;
+  border-bottom-color: #FF3D00;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 </style>
