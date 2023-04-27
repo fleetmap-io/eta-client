@@ -192,6 +192,7 @@ export default {
             const last = data.positions.pop()
             this.$store.commit('setPosition', last)
             this.update([last.longitude, last.latitude])
+            this.$forceUpdate()
           }
         }
       })

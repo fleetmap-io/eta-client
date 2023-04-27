@@ -25,7 +25,6 @@ export const getters = {
 
 export const mutations = {
   setDuration (state, duration) {
-    console.error('setDuration', duration)
     state.duration = duration
   },
   setDistance (state, distance) {
