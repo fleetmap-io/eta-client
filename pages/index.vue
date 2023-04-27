@@ -14,6 +14,7 @@
 import mapboxgl from 'mapbox-gl'
 import bbox from '@turf/bbox'
 import { mapGetters } from 'vuex'
+import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
 import 'mapbox-gl-style-switcher/styles.css'
 import { format } from '@/utils/mapbox'
@@ -50,6 +51,7 @@ export default {
         center: this.end || this.start,
         zoom: 12
       })
+      map.addControl(new MapboxStyleSwitcherControl())
       map.on('load', () => {
         if (this.end) {
           // Add starting point to the map
