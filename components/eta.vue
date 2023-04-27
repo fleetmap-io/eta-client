@@ -86,7 +86,6 @@ export default {
   top: 0;
   /*bottom: 50%;*/
   padding: 10px;
-  background-color: #fffd;
   overflow-y: scroll;
   font-family: sans-serif;
   transition: 0.3s;
