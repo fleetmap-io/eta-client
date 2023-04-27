@@ -7,7 +7,7 @@
       <span>
         {{ duration | fDistance }}
       </span>
-      <span class="fa">
+      <span class="fa" style="padding-left: 10px">
         <font-awesome-icon icon="fa-solid fa-road" />
       </span>
       <span>
@@ -31,7 +31,7 @@
       </span>
     </p>
     <p>
-      Actualizado {{ updated }}
+      <span style="font-size: small">Actualizado {{ updated }}</span>
     </p>
     <span style="font-size: smaller">{{ title }}</span>
   </div>
