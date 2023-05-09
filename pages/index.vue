@@ -143,10 +143,10 @@ export default {
       }
       if (this.end) {
         await this.getRoute(coordinates)
-        this.loading = false
       } else {
         map.setCenter(coordinates)
       }
+      this.loading = false
     },
     addTextLayer (geojson) {
       map.addLayer({
