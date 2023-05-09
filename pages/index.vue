@@ -54,7 +54,7 @@ export default {
     initMap () {
       map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/light-v11',
+        style: 'mapbox://styles/mapbox/streets-v12',
         center: this.end || this.start,
         zoom: 12
       })
@@ -144,7 +144,10 @@ export default {
       if (this.end) {
         await this.getRoute(coordinates)
       } else {
-        map.setCenter(coordinates)
+        map.flyTo({
+          center: coordinates,
+          essential: true
+        })
       }
       this.loading = false
     },
