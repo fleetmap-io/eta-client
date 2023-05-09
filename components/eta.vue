@@ -23,12 +23,12 @@
       </span>
       <span style="font-size: smaller">{{ address }}</span>
     </p>
-    <p :style="`color:` + getStatusColor()">
+    <p v-if="endAddress" :style="`color:` + getStatusColor()">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-location-dot" />
       </span>
       <span>
-        {{ endAddress ? endAddress : (position ? position.address : '') }}
+        {{ endAddress }}
       </span>
     </p>
     <span style="font-size: small">Actualizado {{ updated }}</span><br>
