@@ -22,18 +22,18 @@ import { format } from '@/utils/mapbox'
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
-const styles = [
-  { title: 'Obscuro', uri: 'mapbox://styles/mapbox/dark-v10' },
-  { title: 'Claro', uri: 'mapbox://styles/mapbox/light-v11' },
-  { title: 'Satelite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
-  { title: 'Calles', uri: 'mapbox://styles/mapbox/streets-v11' }
-]
 
 export default {
   name: 'IndexPage',
   components: { Eta },
   data () {
     return {
+      styles: [
+        { title: this.$t('Obscuro'), uri: 'mapbox://styles/mapbox/dark-v10' },
+        { title: 'Claro', uri: 'mapbox://styles/mapbox/light-v11' },
+        { title: 'Satelite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
+        { title: this.$t('Calles'), uri: 'mapbox://styles/mapbox/streets-v11' }
+      ],
       timer: 0,
       loading: true
     }
@@ -59,7 +59,7 @@ export default {
         zoom: 12
       })
 
-      map.addControl(new MapboxStyleSwitcherControl(styles, {
+      map.addControl(new MapboxStyleSwitcherControl(this.styles, {
         eventListeners: {
           // return true if you want to stop execution
           //           onOpen: (event: MouseEvent) => boolean;

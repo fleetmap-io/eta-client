@@ -56,9 +56,6 @@ export default {
     fDistance () { return format.metric(this.distance) },
     updated () {
       const locale = locales[navigator.language.substring(0, 2)]
-      if (!locale) {
-        console.error('language not implemented', navigator.language)
-      }
       return this.devices[0] &&
        formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true, locale })
     }
