@@ -79,7 +79,7 @@ export default {
 
 #eta {
   max-width: 200px;
-  background-color: #fffc;
+  background-color: #fffd;
   position: absolute;
   margin: 10px;
   top: 0;
