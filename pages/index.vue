@@ -233,24 +233,16 @@ export default {
     },
     initWebSocket () {
       socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
-      const events = ['onclose', 'onerror', 'onopen']
-      events.forEach((eventType) => {
-        socket[eventType] = (event) => {
-          if (event.type === 'close') {
-            setTimeout(() => {
-              this.initWebSocket()
-            }, 10000)
-          }
+      socket.onclose = () => setTimeout(() => { this.initWebSocket() }, 10000)
+      socket.onmessage = (event) => {
+        const data = JSON.parse(event.data)
+        if (data.positions && data.positions.length) {
+          const last = data.positions.pop()
+          this.$store.commit('setPosition', last)
+          this.update()
         }
-        socket.onmessage = (event) => {
-          const data = JSON.parse(event.data)
-          if (data.positions && data.positions.length) {
-            const last = data.positions.pop()
-            this.$store.commit('setPosition', last)
-            this.update()
-          }
-        }
-      })
+      }
+      socket.onopen = () => socket.send(new URLSearchParams(window.location.search).get('token'))
     }
   }
 }
