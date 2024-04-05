@@ -51,7 +51,8 @@ export const mutations = {
 export const actions = {
   async getData ({ commit }) {
     const token = new URLSearchParams(window.location.search).get('token')
-    commit('SET_SESSION', await this.$axios.$get(`/session?token=${token}`))
+    const body = 'email=' + encodeURIComponent(`temp_${token}`) + '&password=' + encodeURIComponent(token)
+    commit('SET_SESSION', await this.$axios.$post('/session', body))
     commit('SET_DEVICES', await this.$axios.$get('/devices'))
   }
 }
