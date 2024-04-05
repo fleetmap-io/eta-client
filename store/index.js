@@ -21,7 +21,7 @@ export const getters = {
   onColor: state => state.onColor,
   endColor: state => state.endColor,
   end: state => state.session.attributes.linkVersion && state.session.attributes.linkVersion.split(','),
-  endAddress: state => state.session && state.session.attributes.endAddress,
+  endAddress: state => state.session && state.session.attributes && state.session.attributes.endAddress,
   position: state => state.position,
   device: state => state.devices && state.devices[0] && state.devices[0].name
 }
@@ -51,8 +51,7 @@ export const mutations = {
 export const actions = {
   async getData ({ commit }) {
     const token = new URLSearchParams(window.location.search).get('token')
-    const body = 'email=' + encodeURIComponent(`temp_${token}`) + '&password=' + encodeURIComponent(token)
-    commit('SET_SESSION', await this.$axios.$post('/session', body))
+    commit('SET_SESSION', await this.$axios.$get(`/session?token=${token}`))
     commit('SET_DEVICES', await this.$axios.$get('/devices'))
   }
 }
