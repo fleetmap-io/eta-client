@@ -1,4 +1,4 @@
-const size = 200
+const size = 175
 exports.pulsingDot = {
   width: size,
   height: size,

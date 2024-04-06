@@ -1,6 +1,6 @@
 <template>
   <div id="eta">
-    <div v-if="duration !== -1">
+    <div v-if="duration !== -1" style="color:#2d5f99">
       <span class="fa">
         <font-awesome-icon icon="fa-solid fa-clock" />
       </span>
@@ -24,15 +24,14 @@
       <span style="font-size: smaller">{{ address }}</span>
     </p>
     <p v-if="endAddress" :style="`color:` + getStatusColor()">
-      <span class="fa">
-        <font-awesome-icon icon="fa-solid fa-location-dot" />
-      </span>
+      <img src="/flag.svg" alt="Destino">
       <span>
         {{ endAddress }}
       </span>
     </p>
-    <span style="font-size: small">Actualizado {{ updated }}</span><br>
-    <span style="font-size: smaller">{{ title }}</span>
+    <div style="text-align: center; font-size: small">
+      <font-awesome-icon icon="fa-solid fa-wifi" /> actualizado {{ updated }}
+    </div>
   </div>
 </template>
 
@@ -52,7 +51,6 @@ export default {
   },
   computed: {
     ...mapGetters(['address', 'duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
-    title: () => 'v' + document.title.split(' ')[2],
     fDistance () { return format.metric(this.distance) },
     updated () {
       const locale = locales[navigator.language.substring(0, 2)]

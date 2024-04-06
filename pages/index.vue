@@ -7,6 +7,9 @@
       <span :style="`position: absolute; left: ${timer<10?20:16}px; top: 14px; font-family: sans-serif;`">{{ timer }}</span>
       <span class="loader" />
     </div>
+    <div ref="title" class="mapboxgl-ctrl" style="font-size: smaller">
+      {{ title }}
+    </div>
   </div>
 </template>
 
@@ -41,7 +44,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end'])
+    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end']),
+    title: () => 'v' + document.title.split(' ')[2]
   },
   async mounted () {
     this.loading = true
@@ -60,46 +64,58 @@ export default {
         center: this.end || this.start,
         zoom: 12
       })
-
+      map.addControl({ onAdd: () => this.$refs.title }, 'bottom-right')
       map.addControl(new MapboxStyleSwitcherControl(this.styles, {
         eventListeners: {
           // return true if you want to stop execution
           // onOpen: (event: MouseEvent) => boolean;
           // onSelect: (event: MouseEvent) => boolean;
-          onChange: () => map.once('data', this.update)
+          onChange: () => map.once('data', this.onLoad)
         }
-      }), 'bottom-right')
-      map.on('load', () => {
-        map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 })
-        loadImage(flag).then(img => map.addImage('flag', img))
-        this.initWebSocket()
-        if (this.end) {
-          map.addLayer({
-            id: 'point',
-            type: 'symbol',
-            source: {
-              type: 'geojson',
-              data: {
-                type: 'FeatureCollection',
-                features: [
-                  {
-                    type: 'Feature',
-                    properties: {},
-                    geometry: {
-                      type: 'Point',
-                      coordinates: this.end
-                    }
-                  }
-                ]
+      }), 'top-right')
+      map.on('load', this.onLoad)
+    },
+    onLoad () {
+      map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 })
+      loadImage(flag).then(img => map.addImage('flag', img))
+      this.initWebSocket()
+      if (this.end) {
+        map.addSource('end', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: [
+              {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'Point',
+                  coordinates: this.end
+                }
               }
-            },
-            layout: {
-              'icon-anchor': 'bottom-right',
-              'icon-image': 'flag'
-            }
-          })
-        }
-      })
+            ]
+          }
+        })
+        map.addLayer({
+          id: 'point',
+          type: 'symbol',
+          source: 'end',
+          layout: {
+            'icon-anchor': 'bottom-right',
+            'icon-image': 'flag',
+            'text-field': this.$store.state.session.attributes.endAddress,
+            'text-anchor': 'top-left',
+            'text-allow-overlap': true,
+            'icon-allow-overlap': true,
+            'text-font': ['Arial Unicode MS Bold', 'Open Sans Regular'],
+            'text-offset': [1, 0]
+          },
+          paint: {
+            'text-halo-width': 1,
+            'text-halo-color': 'white'
+          }
+        })
+      }
     },
     async update () {
       const coordinates = [this.position.longitude, this.position.latitude]
@@ -177,13 +193,14 @@ export default {
       if (map.getSource('route')) {
         map.getSource('route').setData(geojson)
       } else {
+        map.addSource('route', {
+          type: 'geojson',
+          data: geojson
+        })
         map.addLayer({
           id: 'routeCasing',
           type: 'line',
-          source: {
-            type: 'geojson',
-            data: geojson
-          },
+          source: 'route',
           layout: {
             'line-join': 'round',
             'line-cap': 'round'
@@ -196,10 +213,7 @@ export default {
         map.addLayer({
           id: 'route',
           type: 'line',
-          source: {
-            type: 'geojson',
-            data: geojson
-          },
+          source: 'route',
           layout: {
             'line-join': 'round',
             'line-cap': 'round'
@@ -209,7 +223,6 @@ export default {
             'line-width': 4
           }
         })
-        // this.addTextLayer(geojson)
       }
       try {
         map.fitBounds(bbox(geojson), {
@@ -241,6 +254,7 @@ export default {
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Arial Unicode MS Bold', 'Open Sans Regular',serif;
 }
 #map {
   position: absolute;
