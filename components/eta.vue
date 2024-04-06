@@ -79,7 +79,7 @@ export default {
 
 #eta {
   max-width: 200px;
-  background-color: #fffd;
+  background-color: #ffef;
   position: absolute;
   margin: 10px;
   top: 0;
@@ -87,5 +87,6 @@ export default {
   overflow-y: scroll;
   font-family: sans-serif;
   transition: 0.3s;
+  border-radius: 10px;
 }
 </style>

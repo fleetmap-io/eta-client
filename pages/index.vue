@@ -18,6 +18,7 @@ import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
 import 'mapbox-gl-style-switcher/styles.css'
 import { format } from '@/utils/mapbox'
+import { pulsingDot } from '~/utils/pulsing-dot'
 
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
@@ -29,10 +30,10 @@ export default {
   data () {
     return {
       styles: [
-        { title: this.$t('Obscuro'), uri: 'mapbox://styles/mapbox/dark-v10' },
+        { title: this.$t('Obscuro'), uri: 'mapbox://styles/mapbox/dark-v11' },
         { title: 'Claro', uri: 'mapbox://styles/mapbox/light-v11' },
-        { title: 'Satelite', uri: 'mapbox://styles/mapbox/satellite-streets-v11' },
-        { title: this.$t('Calles'), uri: 'mapbox://styles/mapbox/streets-v11' }
+        { title: 'Satelite', uri: 'mapbox://styles/mapbox/satellite-streets-v12' },
+        { title: this.$t('Calles'), uri: 'mapbox://styles/mapbox/streets-v12' }
       ],
       timer: 0,
       loading: true
@@ -62,12 +63,13 @@ export default {
       map.addControl(new MapboxStyleSwitcherControl(this.styles, {
         eventListeners: {
           // return true if you want to stop execution
-          //           onOpen: (event: MouseEvent) => boolean;
-          //           onSelect: (event: MouseEvent) => boolean;
+          // onOpen: (event: MouseEvent) => boolean;
+          // onSelect: (event: MouseEvent) => boolean;
           onChange: () => map.once('data', this.update)
         }
-      }))
+      }), 'bottom-right')
       map.on('load', () => {
+        map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 })
         this.initWebSocket()
       })
     },
@@ -98,7 +100,6 @@ export default {
             'circle-color': this.endColor
           }
         })
-        // this is where the code from the next step will go
       }
       const coordinates = [this.position.longitude, this.position.latitude]
       const start = {
@@ -113,12 +114,20 @@ export default {
           }
         ]
       }
+      if (this.end) {
+        await this.getRoute(coordinates)
+      } else {
+        map.flyTo({
+          center: coordinates,
+          essential: true
+        })
+      }
       if (map.getLayer('start')) {
         map.getSource('start').setData(start)
       } else {
         map.addLayer({
           id: 'start',
-          type: 'circle',
+          type: 'symbol',
           source: {
             type: 'geojson',
             data: {
@@ -135,42 +144,12 @@ export default {
               ]
             }
           },
-          paint: {
-            'circle-radius': 10,
-            'circle-color': this.startColor
+          layout: {
+            'icon-image': 'pulsing-dot'
           }
         })
       }
-      if (this.end) {
-        await this.getRoute(coordinates)
-      } else {
-        map.flyTo({
-          center: coordinates,
-          essential: true
-        })
-      }
       this.loading = false
-    },
-    addTextLayer (geojson) {
-      map.addLayer({
-        id: 'routeText',
-        type: 'symbol',
-        source: {
-          type: 'geojson',
-          data: geojson
-        },
-        layout: {
-          'text-field': ['get', 'text'],
-          'text-variable-anchor': ['left', 'right', 'top', 'bottom'],
-          'text-offset': [1, 1],
-          'symbol-placement': 'point',
-          'text-size': 18
-        },
-        paint: {
-          'text-halo-color': 'white',
-          'text-halo-width': 2
-        }
-      })
     },
     async getRoute (start) {
       // make a directions request using cycling profile
@@ -198,6 +177,22 @@ export default {
         map.getSource('route').setData(geojson)
       } else {
         map.addLayer({
+          id: 'routeCasing',
+          type: 'line',
+          source: {
+            type: 'geojson',
+            data: geojson
+          },
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#2d5f99',
+            'line-width': 8
+          }
+        })
+        map.addLayer({
           id: 'route',
           type: 'line',
           source: {
@@ -209,9 +204,8 @@ export default {
             'line-cap': 'round'
           },
           paint: {
-            'line-color': '#3887be',
-            'line-width': 5,
-            'line-opacity': 0.75
+            'line-color': '#4882c5',
+            'line-width': 4
           }
         })
         // this.addTextLayer(geojson)
