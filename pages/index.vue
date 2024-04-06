@@ -17,7 +17,8 @@ import { mapGetters } from 'vuex'
 import { MapboxStyleSwitcherControl } from 'mapbox-gl-style-switcher'
 import Eta from '../components/eta'
 import 'mapbox-gl-style-switcher/styles.css'
-import { format } from '@/utils/mapbox'
+import flag from '../static/flag.svg'
+import { format, loadImage } from '@/utils/mapbox'
 import { pulsingDot } from '~/utils/pulsing-dot'
 
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
@@ -70,37 +71,37 @@ export default {
       }), 'bottom-right')
       map.on('load', () => {
         map.addImage('pulsing-dot', pulsingDot, { pixelRatio: 2 })
+        loadImage(flag).then(img => map.addImage('flag', img))
         this.initWebSocket()
+        if (this.end) {
+          map.addLayer({
+            id: 'point',
+            type: 'symbol',
+            source: {
+              type: 'geojson',
+              data: {
+                type: 'FeatureCollection',
+                features: [
+                  {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                      type: 'Point',
+                      coordinates: this.end
+                    }
+                  }
+                ]
+              }
+            },
+            layout: {
+              'icon-anchor': 'bottom-right',
+              'icon-image': 'flag'
+            }
+          })
+        }
       })
     },
     async update () {
-      if (this.end && !map.getLayer('point')) {
-        // Add starting point to the map
-        map.addLayer({
-          id: 'point',
-          type: 'circle',
-          source: {
-            type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: {
-                    type: 'Point',
-                    coordinates: this.end
-                  }
-                }
-              ]
-            }
-          },
-          paint: {
-            'circle-radius': 10,
-            'circle-color': this.endColor
-          }
-        })
-      }
       const coordinates = [this.position.longitude, this.position.latitude]
       const start = {
         type: 'FeatureCollection',
@@ -212,12 +213,7 @@ export default {
       }
       try {
         map.fitBounds(bbox(geojson), {
-          padding: {
-            top: 30,
-            bottom: 30,
-            left: 30,
-            right: 30
-          }
+          padding: 100
         })
       } catch (e) {
         console.error(e)
