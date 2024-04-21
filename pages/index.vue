@@ -44,7 +44,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end', 'start']),
+    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start']),
     title: () => 'v' + document.title.split(' ')[2]
   },
   async mounted () {
@@ -240,9 +240,10 @@ export default {
       socket.onmessage = (event) => {
         const data = JSON.parse(event.data)
         if (data.positions && data.positions.length) {
-          const last = data.positions.pop()
-          this.$store.commit('setPosition', last)
-          this.update()
+          for (const position of data.positions.filter(p => p.deviceId === this.devices[0].id)) {
+            this.$store.commit('setPosition', position)
+            this.update()
+          }
         }
       }
       socket.onopen = () => socket.send(new URLSearchParams(window.location.search).get('token'))
