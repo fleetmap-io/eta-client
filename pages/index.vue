@@ -44,7 +44,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end']),
+    ...mapGetters(['position', 'device', 'geofences', 'startColor', 'endColor', 'end', 'start']),
     title: () => 'v' + document.title.split(' ')[2]
   },
   async mounted () {

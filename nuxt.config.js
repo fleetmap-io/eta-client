@@ -66,8 +66,7 @@ export default {
   },
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: '/api',
-    credentials: true
+    baseURL: `https://${process.env.TRACCAR_SERVER}/api`
   },
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
