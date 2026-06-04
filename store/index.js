@@ -8,7 +8,8 @@ export const state = () => ({
   endColor: 'black',
   session: null,
   position: null,
-  address: ''
+  address: '',
+  currentTime: new Date()
 })
 
 export const getters = {
@@ -22,9 +23,33 @@ export const getters = {
   endColor: state => state.endColor,
   end: state => state.session.attributes.linkVersion && state.session.attributes.linkVersion.split(','),
   endAddress: state => state.session && state.session.attributes && state.session.attributes.endAddress,
+  allowedStartTime: state => state.session && state.session.attributes && state.session.attributes.allowedStartTime,
+  allowedEndTime: state => state.session && state.session.attributes && state.session.attributes.allowedEndTime,
+  isAllowedTime: (state) => {
+    const startTime = state.session && state.session.attributes && state.session.attributes.allowedStartTime
+    const endTime = state.session && state.session.attributes && state.session.attributes.allowedEndTime
+    if (!startTime || !endTime) {
+      return true
+    }
+    const current = toMinutes(new Date(state.currentTime))
+    const start = timeToMinutes(startTime)
+    const end = timeToMinutes(endTime)
+    return start <= end
+      ? current >= start && current <= end
+      : current >= start || current <= end
+  },
   position: state => state.position,
   start: state => state.position && [state.position.longitude, state.position.latitude],
   device: state => state.devices && state.devices[0] && state.devices[0].name
+}
+
+function toMinutes (date) {
+  return date.getHours() * 60 + date.getMinutes()
+}
+
+function timeToMinutes (time) {
+  const [hours, minutes] = time.split(':').map(Number)
+  return hours * 60 + minutes
 }
 
 export const mutations = {
@@ -44,8 +69,8 @@ export const mutations = {
   SET_SESSION (state, session) {
     state.session = session
   },
-  SET_ADDRESS (state, address) {
-    state.address = address
+  SET_CURRENT_TIME (state, currentTime) {
+    state.currentTime = currentTime
   }
 }
 

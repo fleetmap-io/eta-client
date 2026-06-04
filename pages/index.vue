@@ -7,6 +7,13 @@
       <span :style="`position: absolute; left: ${timer<10?20:16}px; top: 14px; font-family: sans-serif;`">{{ timer }}</span>
       <span class="loader" />
     </div>
+    <div v-if="!isAllowedTime" id="blocked">
+      <div>
+        <font-awesome-icon icon="fa-solid fa-clock" />
+        <h2>{{ $t('Acesso indisponível') }}</h2>
+        <p>{{ $t('Este acesso só está disponível entre') }} {{ allowedStartTime }} {{ $t('e') }} {{ allowedEndTime }}.</p>
+      </div>
+    </div>
     <div ref="title" class="mapboxgl-ctrl" style="font-size: smaller">
       {{ title }}
     </div>
@@ -27,6 +34,7 @@ import { pulsingDot } from '~/utils/pulsing-dot'
 mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
+let socketReconnect = null
 
 export default {
   name: 'IndexPage',
@@ -40,18 +48,49 @@ export default {
         { title: this.$t('Calles'), uri: 'mapbox://styles/mapbox/streets-v12' }
       ],
       timer: 0,
-      loading: true
+      loading: true,
+      timeInterval: null
     }
   },
   computed: {
-    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start']),
+    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start', 'isAllowedTime', 'allowedStartTime', 'allowedEndTime']),
     title: () => 'v' + document.title.split(' ')[2]
+  },
+  watch: {
+    isAllowedTime (value) {
+      if (value && !map) {
+        this.loading = true
+        this.initMap()
+      } else if (value && socket && socket.readyState === WebSocket.CLOSED) {
+        this.initWebSocket()
+      } else if (!value) {
+        this.loading = false
+        clearTimeout(socketReconnect)
+        if (socket) {
+          socket.close()
+        }
+      }
+    }
   },
   async mounted () {
     this.loading = true
+    this.timeInterval = setInterval(() => {
+      this.timer++
+      this.$store.commit('SET_CURRENT_TIME', new Date())
+    }, 1000)
     await this.getLastPosition()
+    if (!this.isAllowedTime) {
+      this.loading = false
+      return
+    }
     this.initMap()
-    setInterval(() => this.timer++, 1000)
+  },
+  beforeDestroy () {
+    clearInterval(this.timeInterval)
+    clearTimeout(socketReconnect)
+    if (socket) {
+      socket.close()
+    }
   },
   methods: {
     async getLastPosition () {
@@ -235,9 +274,20 @@ export default {
       this.$store.commit('setDistance', data.distance)
     },
     initWebSocket () {
+      if (!this.isAllowedTime) {
+        return
+      }
       socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
-      socket.onclose = () => setTimeout(() => { this.initWebSocket() }, 10000)
+      socket.onclose = () => {
+        if (this.isAllowedTime) {
+          socketReconnect = setTimeout(() => { this.initWebSocket() }, 10000)
+        }
+      }
       socket.onmessage = (event) => {
+        if (!this.isAllowedTime) {
+          socket.close()
+          return
+        }
         const data = JSON.parse(event.data)
         if (data.positions && data.positions.length) {
           for (const position of data.positions.filter(p => p.deviceId === this.devices[0].id)) {
@@ -276,6 +326,27 @@ body {
   background-color: rgba(0,0,0,0.6); /* Black background with opacity */
   z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
   cursor: pointer; /* Add a pointer on hover */
+}
+#blocked {
+  align-items: center;
+  background: rgba(255,255,255,0.92);
+  display: flex;
+  font-family: sans-serif;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  padding: 24px;
+  position: fixed;
+  right: 0;
+  text-align: center;
+  top: 0;
+  z-index: 3;
+}
+#blocked h2 {
+  margin: 12px 0;
+}
+#blocked p {
+  margin: 0;
 }
 .loader {
   width: 48px;

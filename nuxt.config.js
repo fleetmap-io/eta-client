@@ -74,11 +74,13 @@ export default {
     extend (config, { isDev }) {
       if (!isDev) {
         config.devtool = 'source-map'
-        config.plugins.push(new SentryPlugin({
-          org: 'pinme-97',
-          project: 'fleetmap',
-          release: process.env.npm_package_version
-        }))
+        if (process.env.SENTRY_AUTH_TOKEN) {
+          config.plugins.push(new SentryPlugin({
+            org: 'pinme-97',
+            project: 'fleetmap',
+            release: process.env.npm_package_version
+          }))
+        }
       }
     }
   },
