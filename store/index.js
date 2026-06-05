@@ -25,6 +25,8 @@ export const getters = {
   endAddress: state => state.session && state.session.attributes && state.session.attributes.endAddress,
   allowedStartTime: state => state.session && state.session.attributes && state.session.attributes.allowedStartTime,
   allowedEndTime: state => state.session && state.session.attributes && state.session.attributes.allowedEndTime,
+  allowedWeekDays: state => getAllowedWeekDays(state),
+  isAllowedAccess: (state, getters) => getters.isAllowedTime && getters.isAllowedWeekDay,
   isAllowedTime: (state) => {
     const startTime = state.session && state.session.attributes && state.session.attributes.allowedStartTime
     const endTime = state.session && state.session.attributes && state.session.attributes.allowedEndTime
@@ -38,9 +40,27 @@ export const getters = {
       ? current >= start && current <= end
       : current >= start || current <= end
   },
+  isAllowedWeekDay: (state) => {
+    const allowedWeekDays = getAllowedWeekDays(state)
+    if (!allowedWeekDays) {
+      return true
+    }
+    const currentDay = weekDayKeys[new Date(state.currentTime).getDay()]
+    return allowedWeekDays.includes(currentDay)
+  },
   position: state => state.position,
   start: state => state.position && [state.position.longitude, state.position.latitude],
   device: state => state.devices && state.devices[0] && state.devices[0].name
+}
+
+const weekDayKeys = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+function getAllowedWeekDays (state) {
+  const allowedWeekDays = state.session && state.session.attributes && state.session.attributes.allowedWeekDays
+  if (!allowedWeekDays) {
+    return null
+  }
+  return Array.isArray(allowedWeekDays) ? allowedWeekDays : allowedWeekDays.split(',')
 }
 
 function toMinutes (date) {

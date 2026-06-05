@@ -7,11 +7,14 @@
       <span :style="`position: absolute; left: ${timer<10?20:16}px; top: 14px; font-family: sans-serif;`">{{ timer }}</span>
       <span class="loader" />
     </div>
-    <div v-if="!isAllowedTime" id="blocked">
+    <div v-if="!isAllowedAccess" id="blocked">
       <div>
         <font-awesome-icon icon="fa-solid fa-clock" />
         <h2>{{ $t('Acesso indisponível') }}</h2>
         <p>{{ $t('Este acesso só está disponível entre') }} {{ allowedStartTime }} {{ $t('e') }} {{ allowedEndTime }}.</p>
+        <p v-if="allowedWeekDays && allowedWeekDays.length">
+          {{ $t('Dias permitidos') }}: {{ allowedWeekDaysText }}.
+        </p>
       </div>
     </div>
     <div ref="title" class="mapboxgl-ctrl" style="font-size: smaller">
@@ -53,11 +56,23 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start', 'isAllowedTime', 'allowedStartTime', 'allowedEndTime']),
-    title: () => 'v' + document.title.split(' ')[2]
+    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start', 'isAllowedAccess', 'allowedStartTime', 'allowedEndTime', 'allowedWeekDays']),
+    title: () => 'v' + document.title.split(' ')[2],
+    allowedWeekDaysText () {
+      const weekDays = {
+        monday: this.$t('Segunda'),
+        tuesday: this.$t('Terça'),
+        wednesday: this.$t('Quarta'),
+        thursday: this.$t('Quinta'),
+        friday: this.$t('Sexta'),
+        saturday: this.$t('Sábado'),
+        sunday: this.$t('Domingo')
+      }
+      return (this.allowedWeekDays || []).map(day => weekDays[day]).join(', ')
+    }
   },
   watch: {
-    isAllowedTime (value) {
+    isAllowedAccess (value) {
       if (value && !map) {
         this.loading = true
         this.initMap()
@@ -79,7 +94,7 @@ export default {
       this.$store.commit('SET_CURRENT_TIME', new Date())
     }, 1000)
     await this.getLastPosition()
-    if (!this.isAllowedTime) {
+    if (!this.isAllowedAccess) {
       this.loading = false
       return
     }
@@ -274,17 +289,17 @@ export default {
       this.$store.commit('setDistance', data.distance)
     },
     initWebSocket () {
-      if (!this.isAllowedTime) {
+      if (!this.isAllowedAccess) {
         return
       }
       socket = new WebSocket(`wss://${process.env.TRACCAR_SERVER}/api/socket`)
       socket.onclose = () => {
-        if (this.isAllowedTime) {
+        if (this.isAllowedAccess) {
           socketReconnect = setTimeout(() => { this.initWebSocket() }, 10000)
         }
       }
       socket.onmessage = (event) => {
-        if (!this.isAllowedTime) {
+        if (!this.isAllowedAccess) {
           socket.close()
           return
         }
