@@ -87,7 +87,8 @@ export default {
   margin: 10px;
   top: 0;
   padding: 10px;
-  overflow-y: scroll;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   font-family: sans-serif;
   transition: 0.3s;
   border-radius: 10px;
