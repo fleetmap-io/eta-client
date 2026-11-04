@@ -39,6 +39,8 @@ let map = null
 let socket = null
 let socketReconnect = null
 const routes = {}
+// with several vehicles, fit the map to them only once, then let the user pan/zoom freely
+let fitted = false
 
 export default {
   name: 'IndexPage',
@@ -192,10 +194,13 @@ export default {
       if (this.end) {
         await this.getRoute(coordinates, position.deviceId)
       } else if (multiple) {
-        try {
-          map.fitBounds(bbox(start), { padding: 100, maxZoom: 15 })
-        } catch (e) {
-          console.error(e)
+        if (!fitted) {
+          try {
+            map.fitBounds(bbox(start), { padding: 100, maxZoom: 15 })
+            fitted = true
+          } catch (e) {
+            console.error(e)
+          }
         }
       } else {
         map.flyTo({
@@ -288,12 +293,18 @@ export default {
           }
         })
       }
-      try {
-        map.fitBounds(bbox({ type: 'FeatureCollection', features: Object.values(routes) }), {
-          padding: 100
-        })
-      } catch (e) {
-        console.error(e)
+      // one vehicle: keep following it; several: fit once, after every vehicle's route is known
+      if (this.devices.length === 1 || (!fitted && Object.keys(routes).length >= this.positions.length)) {
+        try {
+          map.fitBounds(bbox({ type: 'FeatureCollection', features: Object.values(routes) }), {
+            padding: 100
+          })
+          if (this.devices.length > 1) {
+            fitted = true
+          }
+        } catch (e) {
+          console.error(e)
+        }
       }
       this.$store.commit('setDuration', data.duration)
       this.$store.commit('setDistance', data.distance)
