@@ -1,6 +1,10 @@
+import Vue from 'vue'
+
 export const state = () => ({
   duration: -1,
   distance: 0,
+  positions: {},
+  etas: {},
   geofences: [],
   devices: [],
   startColor: 'rgba(255, 100, 100, 1)',
@@ -49,6 +53,9 @@ export const getters = {
     return allowedWeekDays.includes(currentDay)
   },
   position: state => state.position,
+  positions: state => Object.values(state.positions),
+  positionByDevice: state => deviceId => state.positions[deviceId],
+  etaByDevice: state => deviceId => state.etas[deviceId],
   start: state => state.position && [state.position.longitude, state.position.latitude],
   device: state => state.devices && state.devices[0] && state.devices[0].name
 }
@@ -80,8 +87,14 @@ export const mutations = {
     state.distance = distance
   },
   setPosition (state, position) {
-    state.position = position
-    state.address = position.address
+    if (!state.position || state.position.deviceId === position.deviceId) {
+      state.position = position
+      state.address = position.address
+    }
+    Vue.set(state.positions, position.deviceId, position)
+  },
+  setEta (state, { deviceId, duration, distance }) {
+    Vue.set(state.etas, deviceId, { duration, distance })
   },
   SET_DEVICES (state, devices) {
     state.devices = devices
@@ -98,7 +111,8 @@ export const actions = {
   async getData ({ commit }) {
     const token = new URLSearchParams(window.location.search).get('token')
     const auth = { username: `temp_${token}`, password: token }
-    commit('setPosition', await this.$axios.$get('/positions', { auth }).then(r => r[0]))
+    const positions = await this.$axios.$get('/positions', { auth })
+    positions.forEach(p => commit('setPosition', p))
     commit('SET_SESSION', await this.$axios.$get('/session?token=' + token))
     commit('SET_DEVICES', await this.$axios.$get('/devices', { auth }))
   }

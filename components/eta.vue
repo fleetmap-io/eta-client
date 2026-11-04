@@ -1,36 +1,41 @@
 <template>
   <div id="eta">
-    <div v-if="duration !== -1" style="color:#2d5f99">
-      <span class="fa">
-        <font-awesome-icon icon="fa-solid fa-clock" />
-      </span>
-      <span>
-        {{ duration | fDuration }}
-      </span>
-      <span class="fa" style="padding-left: 5px">
-        <font-awesome-icon icon="fa-solid fa-road" />
-      </span>
-      <span>
-        {{ fDistance }}
-      </span>
+    <div v-for="device in devices" :key="device.id">
+      <div v-if="etaByDevice(device.id)" style="color:#2d5f99">
+        <span class="fa">
+          <font-awesome-icon icon="fa-solid fa-clock" />
+        </span>
+        <span>
+          {{ etaByDevice(device.id).duration | fDuration }}
+        </span>
+        <span class="fa" style="padding-left: 5px">
+          <font-awesome-icon icon="fa-solid fa-road" />
+        </span>
+        <span>
+          {{ fDistance(etaByDevice(device.id).distance) }}
+        </span>
+      </div>
+      <p :style="`color:${startColor}`">
+        <span class="fa">
+          <font-awesome-icon icon="fa-solid fa-car" />
+        </span>
+        <span>
+          {{ device.name }}<br>
+        </span>
+        <span style="font-size: smaller">{{ positionByDevice(device.id) && positionByDevice(device.id).address }}</span>
+      </p>
+      <div v-if="devices.length > 1" style="font-size: small; padding-bottom: 8px">
+        <font-awesome-icon icon="fa-solid fa-wifi" /> actualizado {{ updated(device) }}
+      </div>
     </div>
-    <p :style="`color:${startColor}`">
-      <span class="fa">
-        <font-awesome-icon icon="fa-solid fa-car" />
-      </span>
-      <span>
-        {{ devices[0] && devices[0].name }}<br>
-      </span>
-      <span style="font-size: smaller">{{ address }}</span>
-    </p>
     <p v-if="endAddress" :style="`color:` + getStatusColor()">
       <img src="/flag.svg" alt="Destino">
       <span>
         {{ endAddress }}
       </span>
     </p>
-    <div style="text-align: center; font-size: small">
-      <font-awesome-icon icon="fa-solid fa-wifi" /> actualizado {{ updated }}
+    <div v-if="devices.length === 1" style="text-align: center; font-size: small">
+      <font-awesome-icon icon="fa-solid fa-wifi" /> actualizado {{ updated(devices[0]) }}
     </div>
   </div>
 </template>
@@ -50,15 +55,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['address', 'duration', 'distance', 'devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position']),
-    fDistance () { return format.metric(this.distance) },
-    updated () {
-      const locale = locales[navigator.language.substring(0, 2)]
-      return this.devices[0] &&
-       formatDistance(new Date(this.devices[0].lastUpdate), new Date(), { addSuffix: true, locale })
-    }
+    ...mapGetters(['devices', 'geofences', 'startColor', 'endColor', 'onColor', 'endAddress', 'session', 'position', 'positionByDevice', 'etaByDevice'])
   },
   methods: {
+    fDistance (distance) { return format.metric(distance) },
+    updated (device) {
+      const locale = locales[navigator.language.substring(0, 2)]
+      return device &&
+       formatDistance(new Date(device.lastUpdate), new Date(), { addSuffix: true, locale })
+    },
     getStatusColor () {
       return this.endAddress
         ? this.endColor

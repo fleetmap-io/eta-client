@@ -38,6 +38,7 @@ mapboxgl.accessToken = process.env.MAPBOX_ACCESS_TOKEN
 let map = null
 let socket = null
 let socketReconnect = null
+const routes = {}
 
 export default {
   name: 'IndexPage',
@@ -56,7 +57,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['position', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start', 'isAllowedAccess', 'allowedStartTime', 'allowedEndTime', 'allowedWeekDays']),
+    ...mapGetters(['position', 'positions', 'devices', 'geofences', 'startColor', 'endColor', 'end', 'start', 'isAllowedAccess', 'allowedStartTime', 'allowedEndTime', 'allowedWeekDays']),
     title: () => 'v' + document.title.split(' ')[2],
     allowedWeekDaysText () {
       const weekDays = {
@@ -171,22 +172,31 @@ export default {
         })
       }
     },
-    async update () {
-      const coordinates = [this.position.longitude, this.position.latitude]
+    async update (position) {
+      const coordinates = [position.longitude, position.latitude]
+      const multiple = this.devices.length > 1
       const start = {
         type: 'FeatureCollection',
-        features: [
-          {
+        features: this.positions.map(p => {
+          const device = this.devices.find(d => d.id === p.deviceId)
+          return {
             type: 'Feature',
+            properties: { name: multiple && device ? device.name : '' },
             geometry: {
               type: 'Point',
-              coordinates
+              coordinates: [p.longitude, p.latitude]
             }
           }
-        ]
+        })
       }
       if (this.end) {
-        await this.getRoute(coordinates)
+        await this.getRoute(coordinates, position.deviceId)
+      } else if (multiple) {
+        try {
+          map.fitBounds(bbox(start), { padding: 100, maxZoom: 15 })
+        } catch (e) {
+          console.error(e)
+        }
       } else {
         map.flyTo({
           center: coordinates,
@@ -201,28 +211,26 @@ export default {
           type: 'symbol',
           source: {
             type: 'geojson',
-            data: {
-              type: 'FeatureCollection',
-              features: [
-                {
-                  type: 'Feature',
-                  properties: {},
-                  geometry: {
-                    type: 'Point',
-                    coordinates
-                  }
-                }
-              ]
-            }
+            data: start
           },
           layout: {
-            'icon-image': 'pulsing-dot'
+            'icon-image': 'pulsing-dot',
+            'icon-allow-overlap': true,
+            'text-field': ['get', 'name'],
+            'text-anchor': 'top',
+            'text-offset': [0, 1],
+            'text-allow-overlap': true,
+            'text-font': ['Arial Unicode MS Bold', 'Open Sans Regular']
+          },
+          paint: {
+            'text-halo-width': 1,
+            'text-halo-color': 'white'
           }
         })
       }
       this.loading = false
     },
-    async getRoute (start) {
+    async getRoute (start, deviceId) {
       // make a directions request using cycling profile
       // an arbitrary start will always be the same
       // only the end or destination will change
@@ -243,18 +251,20 @@ export default {
           coordinates: route
         }
       }
+      routes[deviceId] = geojson
+      const sourceId = `route-${deviceId}`
       // if the route already exists on the map, we'll reset it using setData
-      if (map.getSource('route')) {
-        map.getSource('route').setData(geojson)
+      if (map.getSource(sourceId)) {
+        map.getSource(sourceId).setData(geojson)
       } else {
-        map.addSource('route', {
+        map.addSource(sourceId, {
           type: 'geojson',
           data: geojson
         })
         map.addLayer({
-          id: 'routeCasing',
+          id: `routeCasing-${deviceId}`,
           type: 'line',
-          source: 'route',
+          source: sourceId,
           layout: {
             'line-join': 'round',
             'line-cap': 'round'
@@ -265,9 +275,9 @@ export default {
           }
         })
         map.addLayer({
-          id: 'route',
+          id: `route-${deviceId}`,
           type: 'line',
-          source: 'route',
+          source: sourceId,
           layout: {
             'line-join': 'round',
             'line-cap': 'round'
@@ -279,7 +289,7 @@ export default {
         })
       }
       try {
-        map.fitBounds(bbox(geojson), {
+        map.fitBounds(bbox({ type: 'FeatureCollection', features: Object.values(routes) }), {
           padding: 100
         })
       } catch (e) {
@@ -287,6 +297,7 @@ export default {
       }
       this.$store.commit('setDuration', data.duration)
       this.$store.commit('setDistance', data.distance)
+      this.$store.commit('setEta', { deviceId, duration: data.duration, distance: data.distance })
     },
     initWebSocket () {
       if (!this.isAllowedAccess) {
@@ -305,9 +316,10 @@ export default {
         }
         const data = JSON.parse(event.data)
         if (data.positions && data.positions.length) {
-          for (const position of data.positions.filter(p => p.deviceId === this.devices[0].id)) {
+          const deviceIds = this.devices.map(d => d.id)
+          for (const position of data.positions.filter(p => deviceIds.includes(p.deviceId))) {
             this.$store.commit('setPosition', position)
-            this.update()
+            this.update(position)
           }
         }
       }
